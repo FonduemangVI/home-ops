@@ -1,0 +1,48 @@
+---
+clusterName: kubernetes
+clusterEndpoint: https://192.168.30.66:6443
+
+# renovate: datasource=github-releases depName=siderolabs/talos
+talosVersion: v1.14.1
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+kubernetesVersion: v1.37.1
+
+secretsPath: secrets.sops.yaml
+
+nodes:
+  - host: "vgrc-tal-01"
+    ip: "192.168.30.63"
+    role: control-plane
+    schematicId: "ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515"
+    secureboot: true
+    data:
+      installDisk: "/dev/sda"
+      installDiskSerial: ""
+      macAddr: "bc:24:11:10:7e:c5"
+      mtu: 9000
+      encryptDisk: false
+      kernelModules: []
+  - host: "vgrc-tal-02"
+    ip: "192.168.30.64"
+    role: control-plane
+    schematicId: "ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515"
+    secureboot: true
+    data:
+      installDisk: "/dev/sda"
+      installDiskSerial: ""
+      macAddr: "bc:24:11:3f:bd:4a"
+      mtu: 9000
+      encryptDisk: false
+      kernelModules: []
+  - host: "vgrc-tal-03"
+    ip: "192.168.30.65"
+    role: control-plane
+    schematicId: "ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515"
+    secureboot: true
+    data:
+      installDisk: "/dev/sda"
+      installDiskSerial: ""
+      macAddr: "bc:24:11:1f:9c:a2"
+      mtu: 9000
+      encryptDisk: false
+      kernelModules: []
