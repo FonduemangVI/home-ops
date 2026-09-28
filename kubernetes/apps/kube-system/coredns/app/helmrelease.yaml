@@ -18,7 +18,7 @@ spec:
     service:
       name: kube-dns
       clusterIP: "10.43.0.10"
-    replicaCount: 2
+    replicaCount: 3
     priorityClassName: system-cluster-critical
     servers:
       - zones:
@@ -61,6 +61,14 @@ spec:
             - matchExpressions:
                 - key: node-role.kubernetes.io/control-plane
                   operator: Exists
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: coredns
+            app.kubernetes.io/name: coredns
     tolerations:
       - key: CriticalAddonsOnly
         operator: Exists
