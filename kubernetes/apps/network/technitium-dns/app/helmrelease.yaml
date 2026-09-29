@@ -24,7 +24,7 @@ spec:
     extraArgs:
       - --rfc2136-host=192.168.30.44
       - --rfc2136-port=53
-      - --rfc2136-zone=${SECRET_DOMAIN}
+      - --rfc2136-zone=k8s.vaultlabs1226.com
       - --rfc2136-tsig-keyname=external-dns
       - --rfc2136-tsig-secret-alg=hmac-sha256
       - --rfc2136-axfr
@@ -37,7 +37,7 @@ spec:
     txtOwnerId: main
     txtPrefix: k8s.main.%{record_type}-
     domainFilters:
-      - "${SECRET_DOMAIN}"
+      - "k8s.vaultlabs1226.com"
     serviceMonitor:
       enabled: true
     podAnnotations:

@@ -10,7 +10,7 @@ spec:
   interval: 1h
   timeout: 15m
   values:
-    publicAddr: "remote.${SECRET_DOMAIN}"
+    publicAddr: "remote.k8s.vaultlabs1226.com"
     imagePullPolicy: IfNotPresent
     proxyService:
       type: ClusterIP

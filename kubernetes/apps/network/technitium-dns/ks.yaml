@@ -4,6 +4,9 @@ kind: Kustomization
 metadata:
   name: technitium-dns
 spec:
+  dependsOn:
+    - name: infisical
+      namespace: external-secrets
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
@@ -11,10 +14,6 @@ spec:
       namespace: network
   interval: 1h
   path: ./kubernetes/apps/network/technitium-dns/app
-  postBuild:
-    substituteFrom:
-      - name: cluster-secrets
-        kind: Secret
   prune: true
   sourceRef:
     kind: GitRepository

@@ -5,7 +5,7 @@ metadata:
   name: envoy-external
 spec:
   endpoints:
-    - dnsName: external.${SECRET_DOMAIN}
+    - dnsName: external.k8s.vaultlabs1226.com
       recordType: A
       targets:
-        - ${WAN_IP}
+        - 103.51.115.22

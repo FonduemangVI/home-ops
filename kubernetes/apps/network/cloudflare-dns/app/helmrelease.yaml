@@ -39,7 +39,7 @@ spec:
     txtOwnerId: default
     txtPrefix: k8s.%{record_type}-
     domainFilters:
-      - "${SECRET_DOMAIN#*.}"
+      - "vaultlabs1226.com"
     serviceMonitor:
       enabled: true
     podAnnotations:

@@ -17,7 +17,7 @@ spec:
     httpRoute:
       enabled: true
       hostnames:
-        - "{{ .Release.Name }}.${SECRET_DOMAIN}"
+        - "{{ .Release.Name }}.k8s.vaultlabs1226.com"
       parentRefs:
         - name: envoy-internal
           namespace: network

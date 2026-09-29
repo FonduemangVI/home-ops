@@ -77,8 +77,7 @@ apps-secrets:
     just log info "Applying secrets for apps" stage "{{ recipe_name() }}"
     for secret in \
         "{{ source_directory() }}/deploy-key.sops.yaml" \
-        "{{ source_directory() }}/sops-age.sops.yaml" \
-        "{{ kubernetes_dir }}/components/sops/cluster-secrets.sops.yaml"
+        "{{ source_directory() }}/sops-age.sops.yaml"
     do
         name="$(basename "$secret" .sops.yaml)"
         if sops decrypt "$secret" \

@@ -46,12 +46,12 @@ kind: Gateway
 metadata:
   name: envoy-internal
   annotations:
-    external-dns.kubernetes.io/target: internal.${SECRET_DOMAIN}
+    external-dns.kubernetes.io/target: internal.k8s.vaultlabs1226.com
 spec:
   gatewayClassName: envoy
   infrastructure:
     annotations:
-      external-dns.kubernetes.io/hostname: internal.${SECRET_DOMAIN}
+      external-dns.kubernetes.io/hostname: internal.k8s.vaultlabs1226.com
       lbipam.cilium.io/ips: "192.168.30.67"
   listeners:
     - name: http
@@ -69,19 +69,19 @@ spec:
       tls:
         certificateRefs:
           - kind: Secret
-            name: ${SECRET_DOMAIN/./-}-production-tls
+            name: k8s-vaultlabs1226.com-production-tls
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: envoy-external
   annotations:
-    external-dns.kubernetes.io/target: external.${SECRET_DOMAIN}
+    external-dns.kubernetes.io/target: external.k8s.vaultlabs1226.com
 spec:
   gatewayClassName: envoy
   infrastructure:
     annotations:
-      external-dns.kubernetes.io/hostname: external.${SECRET_DOMAIN}
+      external-dns.kubernetes.io/hostname: external.k8s.vaultlabs1226.com
       lbipam.cilium.io/ips: "192.168.30.69"
   listeners:
     - name: https
@@ -93,7 +93,7 @@ spec:
       tls:
         certificateRefs:
           - kind: Secret
-            name: ${SECRET_DOMAIN/./-}-production-tls
+            name: k8s-vaultlabs1226.com-production-tls
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy

@@ -45,7 +45,7 @@ spec:
               name: cloudflare-api-token
               key: api-token
         selector:
-          dnsZones: ["${SECRET_DOMAIN}"]
+          dnsZones: ["k8s.vaultlabs1226.com"]
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -63,4 +63,4 @@ spec:
               name: cloudflare-api-token
               key: api-token
         selector:
-          dnsZones: ["${SECRET_DOMAIN}"]
+          dnsZones: ["k8s.vaultlabs1226.com"]

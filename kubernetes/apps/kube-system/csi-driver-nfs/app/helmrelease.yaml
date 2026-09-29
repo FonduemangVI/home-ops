@@ -21,8 +21,8 @@ spec:
       parameters:
         server: 192.168.30.31
         share: /volume1/k8snfs
-        # Readable per-PVC folders on the NAS; $$ stops Flux substituting these
-        subDir: $${pvc.metadata.namespace}-$${pvc.metadata.name}
+        # Readable per-PVC folders on the NAS (expanded by the CSI driver)
+        subDir: ${pvc.metadata.namespace}-${pvc.metadata.name}
       reclaimPolicy: Retain
       volumeBindingMode: Immediate
       mountOptions:
