@@ -19,7 +19,7 @@ spec:
       existingSecretKey: auth-secret
       oidc:
         issuerURL: https://authentik.vaultlabs1226.com/application/o/radar/
-        clientID: radar
+        clientID: RUOHU5SUumyhBhejT3zOYHVFeka5ohvTpVFVV9Cx
         existingSecret: radar-secret
         clientSecretKey: client-secret
         redirectURL: https://radar.k8s.vaultlabs1226.com/auth/callback
