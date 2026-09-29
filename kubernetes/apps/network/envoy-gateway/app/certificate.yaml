@@ -7,12 +7,9 @@ spec:
   dnsNames:
     - "${SECRET_DOMAIN}"
     - "*.${SECRET_DOMAIN}"
-  duration: 160h
   issuerRef:
-    name: internal-ca
+    name: letsencrypt-staging
     kind: ClusterIssuer
   privateKey:
     algorithm: ECDSA
   secretName: "${SECRET_DOMAIN/./-}-production-tls"
-  usages:
-    - digital signature
