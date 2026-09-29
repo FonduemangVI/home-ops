@@ -30,4 +30,10 @@ spec:
         retentionPolicy:
           whenDeleted: Retain
     dbManagement:
-      initialize: true
+      initialize: false
+      backupCron:
+        storageClass: nfs-syno
+    components:
+      guac:
+        recordingData:
+          storageClassName: nfs-syno
