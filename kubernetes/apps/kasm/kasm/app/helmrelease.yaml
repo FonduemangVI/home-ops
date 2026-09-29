@@ -1,0 +1,33 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kasm
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: kasm
+  interval: 1h
+  timeout: 15m
+  values:
+    publicAddr: "remote.${SECRET_DOMAIN}"
+    imagePullPolicy: IfNotPresent
+    proxyService:
+      type: ClusterIP
+    # Exposed through Envoy Gateway via httproute.yaml instead
+    ingress:
+      enabled: false
+    # Cert mounted by the Kasm proxy/guac pods; Envoy terminates the public TLS
+    certificate:
+      certManager:
+        enabled: true
+        issuerName: internal-ca
+        issuerKind: ClusterIssuer
+        issuerGroup: cert-manager.io
+    database:
+      storage:
+        storageClassName: nfs-syno
+        retentionPolicy:
+          whenDeleted: Retain
+    dbManagement:
+      initialize: true
