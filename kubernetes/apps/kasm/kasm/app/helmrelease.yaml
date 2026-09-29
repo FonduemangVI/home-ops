@@ -14,9 +14,15 @@ spec:
     imagePullPolicy: IfNotPresent
     proxyService:
       type: ClusterIP
-    # Exposed through Envoy Gateway via httproute.yaml instead
     ingress:
       enabled: false
+    httpRoute:
+      enabled: true
+      parentRefs:
+        - name: envoy-internal
+          namespace: network
+          sectionName: https
+      backendProtocol: http
     # Cert mounted by the Kasm proxy/guac pods; Envoy terminates the public TLS
     certificate:
       certManager:
