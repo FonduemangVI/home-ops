@@ -18,8 +18,7 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  # No StorageClass exists yet for the DB volume; unsuspend once storage is deployed
-  suspend: true
+  suspend: false
   targetNamespace: kasm
   timeout: 15m
   wait: false
