@@ -1,0 +1,44 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app technitium-dns
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: technitium-dns
+  interval: 1h
+  values:
+    fullnameOverride: *app
+    provider:
+      name: rfc2136
+    env:
+      - name: &name EXTERNAL_DNS_RFC2136_TSIG_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: &secret technitium-dns-secret
+            key: *name
+    # Writes to the Technitium primary (vgrc-dns-01); cluster replication
+    # copies the k8s zone to vgrc-dns-02. Zone must be Primary: AXFR is needed
+    # to read records back and Forwarder zones refuse it.
+    extraArgs:
+      - --rfc2136-host=192.168.30.44
+      - --rfc2136-port=53
+      - --rfc2136-zone=${SECRET_DOMAIN}
+      - --rfc2136-tsig-keyname=external-dns
+      - --rfc2136-tsig-secret-alg=hmac-sha256
+      - --rfc2136-axfr
+      - --rfc2136-min-ttl=60s
+    triggerLoopOnEvent: true
+    policy: sync
+    sources:
+      - gateway-httproute
+      - service
+    txtOwnerId: main
+    txtPrefix: k8s.main.%{record_type}-
+    domainFilters:
+      - "${SECRET_DOMAIN}"
+    serviceMonitor:
+      enabled: true
+    podAnnotations:
+      secret.reloader.stakater.com/reload: *secret
