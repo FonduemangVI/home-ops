@@ -22,6 +22,9 @@ spec:
   dependsOn:
     - name: tuppr
   interval: 1h
+  # tuppr drains the node its own webhook runs on; retry quickly if a
+  # reconcile lands in that window instead of waiting the full interval
+  retryInterval: 5m
   path: ./kubernetes/apps/system-upgrade/tuppr/upgrades
   prune: true
   sourceRef:
