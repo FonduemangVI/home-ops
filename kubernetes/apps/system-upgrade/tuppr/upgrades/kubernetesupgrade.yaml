@@ -1,0 +1,10 @@
+---
+# Keep in step with kubernetesVersion in talos/topf.yaml
+apiVersion: tuppr.home-operations.com/v1alpha1
+kind: KubernetesUpgrade
+metadata:
+  name: kubernetes
+spec:
+  kubernetes:
+    # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+    version: v1.37.1

@@ -3,6 +3,14 @@ machine:
     - "127.0.0.1"
     - "192.168.30.66"
     - "talosk8s.private.vaultlabs1226.com"
+  features:
+    # tuppr (kubernetes/apps/system-upgrade) upgrades nodes via the Talos API
+    kubernetesTalosAPIAccess:
+      enabled: true
+      allowedRoles:
+        - os:admin
+      allowedKubernetesNamespaces:
+        - system-upgrade
 ---
 apiVersion: v1alpha1
 kind: KubeNetworkConfig
