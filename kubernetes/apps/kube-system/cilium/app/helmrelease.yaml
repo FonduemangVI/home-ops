@@ -32,7 +32,18 @@ spec:
     gatewayAPI:
       enabled: false
     hubble:
-      enabled: false
+      enabled: true
+      relay:
+        enabled: true
+        rollOutPods: true
+      ui:
+        enabled: false
+      # cronJob, not helm (rotates certs on every upgrade) or certmanager
+      # (cilium installs before cert-manager during bootstrap)
+      tls:
+        auto:
+          enabled: true
+          method: cronJob
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: "10.42.0.0/16"
