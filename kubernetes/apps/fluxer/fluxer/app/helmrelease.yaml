@@ -1,0 +1,94 @@
+---
+# Ported from docker-compose/vgrc-apps-01/fluxer (Komodo stack "fluxer").
+# The chart is at parity with that compose stack; only settings that differ
+# from the chart defaults are set here.
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: fluxer
+spec:
+  chart:
+    spec:
+      chart: ./deploy/helm/fluxer
+      sourceRef:
+        kind: GitRepository
+        name: fluxer
+      reconcileStrategy: Revision
+  interval: 1h
+  timeout: 15m
+  values:
+    # Docker instance stays on chat.vaultlabs1226.com. This one sits under the
+    # cluster wildcard cert until cutover.
+    domain: chat.k8s.vaultlabs1226.com
+
+    secrets:
+      existingSecret: fluxer-secret
+      generate: false
+
+    # Non-secret settings carried over from the Komodo stack environment.
+    env:
+      FLUXER_DISCOVERY_ENABLED: "true"
+      # Staged for the M365 direct-send relay (port 25, no auth). Left disabled:
+      # Fluxer rejects SMTP config without a username and password. See Outline
+      # "Bitwarden - M365 SMTP TLS Failure" if sends fail with an untrusted root.
+      FLUXER_EMAIL_ENABLED: "false"
+      FLUXER_EMAIL_PROVIDER: smtp
+      FLUXER_EMAIL_FROM_EMAIL: fluxer@vaultlabs1226.com
+      FLUXER_EMAIL_SMTP_HOST: vaultlabs1226-com.mail.protection.outlook.com
+      FLUXER_EMAIL_SMTP_PORT: "25"
+      FLUXER_EMAIL_SMTP_TLS_MODE: starttls
+
+    # Backing services: image tags match the compose stack.
+    postgres:
+      image:
+        tag: 18.6-alpine
+      persistence:
+        storageClassName: nfs-syno
+    valkey:
+      image:
+        tag: 9.2-alpine
+      persistence:
+        storageClassName: nfs-syno
+    nats:
+      image:
+        tag: 2.15-alpine
+      persistence:
+        storageClassName: nfs-syno
+    meilisearch:
+      image:
+        tag: v1.55
+      persistence:
+        storageClassName: nfs-syno
+    seaweedfs:
+      image:
+        tag: "4.48"
+      persistence:
+        storageClassName: nfs-syno
+
+    # Compose published 7881/tcp + 7882/udp on the host and let LiveKit find
+    # the WAN IP over STUN. Here the ports sit on a Cilium LB IP instead.
+    # nodeIP only satisfies the chart's loadBalancer check: with
+    # use_external_ip true LiveKit replaces it with the STUN-discovered address.
+    livekit:
+      image:
+        tag: v1.13.9
+      expose: loadBalancer
+      nodeIP: &livekitIP 192.168.30.70
+      serviceAnnotations:
+        lbipam.cilium.io/ips: *livekitIP
+      tcpPort: 7881
+      udpPort: 7882
+      extraConfig:
+        rtc:
+          use_external_ip: true
+
+    edge:
+      expose: gateway
+      gateway:
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+            sectionName: https
+        # Envoy cuts requests at 15s otherwise (gateway websocket, uploads).
+        timeouts:
+          request: 0s

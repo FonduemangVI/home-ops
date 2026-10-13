@@ -1,0 +1,16 @@
+---
+# Upstream publishes the chart only in-repo (no OCI/Helm repo), so pull it
+# straight from GitHub. Pinned to a commit; bump by hand after reading the
+# deploy/helm/fluxer changes upstream.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: fluxer
+spec:
+  interval: 1h
+  url: https://github.com/fluxerapp/fluxer
+  ref:
+    commit: 83bb9d89c8f24f1975ee3a3e4c8c9ddb38d53929
+  ignore: |
+    /*
+    !/deploy/helm/fluxer/
