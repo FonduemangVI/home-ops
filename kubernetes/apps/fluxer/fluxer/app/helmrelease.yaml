@@ -13,7 +13,8 @@ spec:
       sourceRef:
         kind: GitRepository
         name: fluxer
-      reconcileStrategy: Revision
+      # Upgrade only when upstream bumps Chart.yaml, not on every commit to main.
+      reconcileStrategy: ChartVersion
   interval: 1h
   timeout: 15m
   values:
