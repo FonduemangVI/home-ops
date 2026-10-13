@@ -17,6 +17,19 @@ spec:
       reconcileStrategy: ChartVersion
   interval: 1h
   timeout: 15m
+  # nfs-syno reports the whole Synology volume (~169 TB), not the PVC size, so
+  # SeaweedFS's default 1% free-space floor is ~1.7 TB and it refuses to create
+  # any volume. Use an absolute floor instead. The chart has no extraArgs.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: StatefulSet
+              name: seaweedfs
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: -volume.minFreeSpace=10GiB
   values:
     # Docker instance stays on chat.vaultlabs1226.com. This one sits under the
     # cluster wildcard cert until cutover.
