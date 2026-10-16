@@ -35,6 +35,38 @@ spec:
     # cluster wildcard cert until cutover.
     domain: chat.k8s.vaultlabs1226.com
 
+    # The chart default (v1, pullPolicy Always) only moves when a pod restarts
+    # and leaves no record in Git. Pin each image to its CalVer build tag so
+    # Renovate opens the upgrade PRs. Each image is built and tagged on its own,
+    # so the versions differ per image.
+    image:
+      pullPolicy: IfNotPresent
+      tags:
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-admin
+        fluxer-admin: "2026.1015.210844"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-api
+        fluxer-api: "2026.1015.210832"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-app-proxy-self-hosted
+        fluxer-app-proxy-self-hosted: "2026.1016.10910"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gateway
+        fluxer-gateway: "2026.1012.111351"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gifs
+        fluxer-gifs: "2026.1012.111352"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-media-proxy
+        fluxer-media-proxy: "2026.1013.32826"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-messages
+        fluxer-messages: "2026.1012.111357"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-push
+        fluxer-push: "2026.1012.111323"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-snowflakes
+        fluxer-snowflakes: "2026.1012.111327"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-static
+        fluxer-static: "2026.1010.212914"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-unfurl
+        fluxer-unfurl: "2026.1012.111349"
+        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-users
+        fluxer-users: "2026.1012.111317"
+
     secrets:
       existingSecret: fluxer-secret
       generate: false
