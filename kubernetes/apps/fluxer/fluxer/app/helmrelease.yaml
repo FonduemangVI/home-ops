@@ -45,9 +45,9 @@ spec:
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-admin
         fluxer-admin: "2026.1017.35317"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-api
-        fluxer-api: "2026.1017.35252"
+        fluxer-api: "2026.1017.234419"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-app-proxy-self-hosted
-        fluxer-app-proxy-self-hosted: "2026.1017.202601"
+        fluxer-app-proxy-self-hosted: "2026.1017.223812"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gateway
         fluxer-gateway: "2026.1012.111351"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gifs
@@ -57,7 +57,7 @@ spec:
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-messages
         fluxer-messages: "2026.1012.111357"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-push
-        fluxer-push: "2026.1012.111323"
+        fluxer-push: "2026.1018.318"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-snowflakes
         fluxer-snowflakes: "2026.1012.111327"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-static
