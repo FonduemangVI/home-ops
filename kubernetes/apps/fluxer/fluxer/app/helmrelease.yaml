@@ -45,7 +45,7 @@ spec:
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-admin
         fluxer-admin: "2026.1017.35317"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-api
-        fluxer-api: "2026.1020.202514"
+        fluxer-api: "2026.1023.104007"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-app-proxy-self-hosted
         fluxer-app-proxy-self-hosted: "2026.1019.95313"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gateway
