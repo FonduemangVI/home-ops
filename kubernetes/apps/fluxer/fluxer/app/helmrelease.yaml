@@ -13,8 +13,11 @@ spec:
       sourceRef:
         kind: GitRepository
         name: fluxer
-      # Upgrade only when upstream bumps Chart.yaml, not on every commit to main.
-      reconcileStrategy: ChartVersion
+      # Upstream never bumps Chart.yaml (still 0.1.0 after many template
+      # changes), so ChartVersion froze the release on the first build. Track
+      # each fetched commit instead; upgrades with no rendered change leave the
+      # pods alone.
+      reconcileStrategy: Revision
   interval: 1h
   timeout: 15m
   # nfs-syno reports the whole Synology volume (~169 TB), not the PVC size, so
@@ -34,6 +37,9 @@ spec:
     # Docker instance stays on chat.vaultlabs1226.com. This one sits under the
     # cluster wildcard cert until cutover.
     domain: chat.k8s.vaultlabs1226.com
+    # Becomes FLUXER_VAPID_EMAIL, the contact web push services see. The
+    # default, admin@<domain>, is not a real mailbox.
+    email: fluxer@vaultlabs1226.com
 
     # The chart default (v1, pullPolicy Always) only moves when a pod restarts
     # and leaves no record in Git. Pin each image to its CalVer build tag so
