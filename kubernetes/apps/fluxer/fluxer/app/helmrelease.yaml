@@ -77,18 +77,9 @@ spec:
       existingSecret: fluxer-secret
       generate: false
 
-    # Non-secret settings carried over from the Komodo stack environment.
-    env:
-      FLUXER_DISCOVERY_ENABLED: "true"
-      # Staged for the M365 direct-send relay (port 25, no auth). Left disabled:
-      # Fluxer rejects SMTP config without a username and password. See Outline
-      # "Bitwarden - M365 SMTP TLS Failure" if sends fail with an untrusted root.
-      FLUXER_EMAIL_ENABLED: "false"
-      FLUXER_EMAIL_PROVIDER: smtp
-      FLUXER_EMAIL_FROM_EMAIL: fluxer@vaultlabs1226.com
-      FLUXER_EMAIL_SMTP_HOST: vaultlabs1226-com.mail.protection.outlook.com
-      FLUXER_EMAIL_SMTP_PORT: "25"
-      FLUXER_EMAIL_SMTP_TLS_MODE: starttls
+    # No env overrides. Discovery is on by default (discovery.enabled), and the
+    # instance uses username sign-in, so it never sends email and needs no
+    # FLUXER_EMAIL_* settings.
 
     # Backing services: image tags match the compose stack.
     postgres:
