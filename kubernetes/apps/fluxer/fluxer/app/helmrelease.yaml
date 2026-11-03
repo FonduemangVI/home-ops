@@ -49,11 +49,11 @@ spec:
       pullPolicy: IfNotPresent
       tags:
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-admin
-        fluxer-admin: "2026.1102.200626"
+        fluxer-admin: "2026.1103.40756"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-api
-        fluxer-api: "2026.1103.12955"
+        fluxer-api: "2026.1103.120823"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-app-proxy-self-hosted
-        fluxer-app-proxy-self-hosted: "2026.1102.202600"
+        fluxer-app-proxy-self-hosted: "2026.1103.130448"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gateway
         fluxer-gateway: "2026.1102.200652"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gifs
