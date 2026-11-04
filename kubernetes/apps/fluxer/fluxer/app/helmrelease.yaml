@@ -49,29 +49,29 @@ spec:
       pullPolicy: IfNotPresent
       tags:
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-admin
-        fluxer-admin: "2026.1103.225619"
+        fluxer-admin: "2026.1104.4716"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-api
-        fluxer-api: "2026.1103.225644"
+        fluxer-api: "2026.1104.4651"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-app-proxy-self-hosted
-        fluxer-app-proxy-self-hosted: "2026.1103.225621"
+        fluxer-app-proxy-self-hosted: "2026.1104.4708"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gateway
-        fluxer-gateway: "2026.1103.225711"
+        fluxer-gateway: "2026.1104.4704"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gifs
-        fluxer-gifs: "2026.1103.225629"
+        fluxer-gifs: "2026.1104.4638"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-media-proxy
-        fluxer-media-proxy: "2026.1103.225637"
+        fluxer-media-proxy: "2026.1104.4649"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-messages
-        fluxer-messages: "2026.1103.225643"
+        fluxer-messages: "2026.1104.4720"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-push
-        fluxer-push: "2026.1103.225618"
+        fluxer-push: "2026.1104.4647"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-snowflakes
-        fluxer-snowflakes: "2026.1103.225637"
+        fluxer-snowflakes: "2026.1104.4654"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-static
-        fluxer-static: "2026.1103.225615"
+        fluxer-static: "2026.1104.4727"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-unfurl
-        fluxer-unfurl: "2026.1103.225602"
+        fluxer-unfurl: "2026.1104.4653"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-users
-        fluxer-users: "2026.1103.225602"
+        fluxer-users: "2026.1104.4653"
 
     secrets:
       existingSecret: fluxer-secret
