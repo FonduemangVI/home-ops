@@ -121,7 +121,7 @@ spec:
     livekit:
       image:
         repository: livekit/livekit-server
-        tag: v1.13.9
+        tag: v1.13.11
       expose: loadBalancer
       nodeIP: &livekitIP 192.168.30.70
       serviceAnnotations:
