@@ -81,30 +81,36 @@ spec:
     # instance uses username sign-in, so it never sends email and needs no
     # FLUXER_EMAIL_* settings.
 
-    # Backing services: image tags match the compose stack.
+    # Backing services. repository repeats the chart default so Renovate's
+    # helm-values manager can see which image each tag belongs to.
     postgres:
       image:
+        repository: postgres
         tag: 18.6-alpine
       persistence:
         storageClassName: nfs-syno
     valkey:
       image:
+        repository: valkey/valkey
         tag: 9.2-alpine
       persistence:
         storageClassName: nfs-syno
     nats:
       image:
+        repository: nats
         tag: 2.15-alpine
       persistence:
         storageClassName: nfs-syno
     meilisearch:
       image:
+        repository: getmeili/meilisearch
         tag: v1.55
       persistence:
         storageClassName: nfs-syno
     seaweedfs:
       image:
-        tag: "4.48"
+        repository: chrislusf/seaweedfs
+        tag: "4.52"
       persistence:
         storageClassName: nfs-syno
 
@@ -114,6 +120,7 @@ spec:
     # use_external_ip true LiveKit replaces it with the STUN-discovered address.
     livekit:
       image:
+        repository: livekit/livekit-server
         tag: v1.13.9
       expose: loadBalancer
       nodeIP: &livekitIP 192.168.30.70
@@ -127,6 +134,10 @@ spec:
 
     edge:
       expose: gateway
+      env:
+        # Only Envoy pods connect to the edge. The chart default
+        # (private_ranges) would also trust X-Forwarded-For from LAN clients.
+        FLUXER_EDGE_TRUSTED_PROXIES: "10.42.0.0/16"
       gateway:
         parentRefs:
           - name: envoy-external

@@ -54,6 +54,16 @@
       },
     },
     {
+      description: "Fluxer Postgres Group (server in helmrelease.yaml, pg_dump in backup.yaml)",
+      groupName: "fluxer-postgres",
+      matchDatasources: ["docker"],
+      matchFileNames: ["kubernetes/apps/fluxer/**"],
+      matchPackageNames: ["/^(docker\\.io/library/)?postgres$/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
       matchUpdateTypes: ["major"],
       addLabels: ["type/major"],
     },

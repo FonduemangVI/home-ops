@@ -403,7 +403,7 @@ url = "https://nodejs.org/dist/v26.13.0/node-v26.13.0-darwin-x64.tar.gz"
 
 [[tools.oxfmt]]
 version = "0.75.0"
-aube = { path = "locks/oxfmt/0.75.0", digest = "sha256:1d4f470a5dbba272218132db6ff9ba1911075d29dcd3253a0e02b4a5037a8a23" }
+aube = { path = "locks/oxfmt/0.75.0", digest = "sha256:ef5b827c78494795478d3f9fd2352df291b4650435ec4b445026fa44e74a974c" }
 backend = "npm:oxfmt"
 specifiers = ["0.75.0"]
 
