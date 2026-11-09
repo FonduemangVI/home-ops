@@ -104,7 +104,7 @@ spec:
     meilisearch:
       image:
         repository: getmeili/meilisearch
-        tag: v1.55
+        tag: v1.56
       persistence:
         storageClassName: nfs-syno
     seaweedfs:
