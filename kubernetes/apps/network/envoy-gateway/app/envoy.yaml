@@ -123,8 +123,12 @@ spec:
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: ClientTrafficPolicy
 metadata:
-  name: envoy
+  name: envoy-internal
 spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-internal
   clientIPDetection:
     xForwardedFor:
       trustedCIDRs:
@@ -132,9 +136,38 @@ spec:
   http2:
     onInvalidMessage: TerminateStream
   http3: {}
-  targetSelectors:
+  tcpKeepalive: {}
+  tls:
+    minVersion: "1.2"
+    alpnProtocols:
+      - h2
+      - http/1.1
+---
+# Same as envoy-internal plus PROXY protocol. Internet traffic reaches this
+# Gateway through Traefik on vgrc-network-01 as TCP TLS passthrough, so without
+# PROXY protocol every outside client shows up as Traefik's address. Traefik
+# sends a v2 header (docker-compose: traefik/dynamic/k8s-passthrough.yml).
+# optional: LAN clients resolve *.k8s to 192.168.30.69 and connect directly
+# with no header. The cost: any LAN host can send a forged header and pick its
+# own client IP. Only LAN can reach this IP directly, so that is accepted.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: envoy-external
+spec:
+  targetRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
+      name: envoy-external
+  proxyProtocol:
+    optional: true
+  clientIPDetection:
+    xForwardedFor:
+      trustedCIDRs:
+        - "10.42.0.0/16"
+  http2:
+    onInvalidMessage: TerminateStream
+  http3: {}
   tcpKeepalive: {}
   tls:
     minVersion: "1.2"
