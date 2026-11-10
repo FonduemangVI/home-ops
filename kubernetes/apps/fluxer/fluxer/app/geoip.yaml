@@ -1,0 +1,105 @@
+---
+# IP-to-location for the API (session "Location" in the admin panel). Fluxer
+# reads a MaxMind-format City database from FLUXER_GEOIP_DB_PATH; this uses
+# the free DB-IP City Lite build (CC BY 4.0, attribution to DB-IP:
+# https://db-ip.com). DB-IP publishes a new file each month.
+#
+# The API opens the file once and keeps it until the pod restarts, so a new
+# month takes effect on the next API rollout (Renovate image bumps do this).
+# A missing file is not fatal: lookups return no location and the API retries
+# opening it on the next lookup.
+#
+# First load: kubectl -n fluxer create job --from=cronjob/geoip-update geoip-seed
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: geoip
+spec:
+  # The job writes and the API reads, possibly from different nodes.
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-syno
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: geoip-update
+spec:
+  schedule: "0 4 3 * *"
+  timeZone: Australia/Melbourne
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      activeDeadlineSeconds: 1800
+      template:
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 100
+            runAsGroup: 101
+            fsGroup: 101
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: download
+              image: docker.io/curlimages/curl:8.23.0
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  # This month's file, or last month's if it is not out yet.
+                  y=$(date +%Y); m=$(date +%m)
+                  py=$y; pm=$(( ${m#0} - 1 ))
+                  if [ "$pm" -eq 0 ]; then pm=12; py=$(( y - 1 )); fi
+                  pm=$(printf %02d "$pm")
+                  tmp=/geoip/.download
+                  for month in "$y-$m" "$py-$pm"; do
+                    url="https://download.db-ip.com/free/dbip-city-lite-$month.mmdb.gz"
+                    if curl -fsSL --retry 3 -o "$tmp.gz" "$url"; then
+                      echo "downloaded $url"
+                      break
+                    fi
+                    rm -f "$tmp.gz"
+                  done
+                  [ -s "$tmp.gz" ] || { echo "no DB-IP file found"; exit 1; }
+                  gunzip -c "$tmp.gz" > "$tmp.mmdb"
+                  rm -f "$tmp.gz"
+                  # Every MaxMind-format file carries this marker in its metadata.
+                  # BusyBox grep will not match inside binary data, so split the
+                  # tail into words first.
+                  if ! tail -c 131072 "$tmp.mmdb" | tr -c 'A-Za-z.' '\n' | grep -qx 'MaxMind.com'; then
+                    echo "downloaded file is not an mmdb database"
+                    rm -f "$tmp.mmdb"
+                    exit 1
+                  fi
+                  chmod 0644 "$tmp.mmdb"
+                  mv "$tmp.mmdb" /geoip/dbip-city-lite.mmdb
+                  echo "installed /geoip/dbip-city-lite.mmdb ($(du -h /geoip/dbip-city-lite.mmdb | cut -f1))"
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              volumeMounts:
+                - name: geoip
+                  mountPath: /geoip
+          volumes:
+            - name: geoip
+              persistentVolumeClaim:
+                claimName: geoip
