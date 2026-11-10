@@ -132,6 +132,21 @@ spec:
         rtc:
           use_external_ip: true
 
+    # IP-to-location from the DB-IP City Lite file kept current by
+    # geoip-update (geoip.yaml).
+    api:
+      env:
+        FLUXER_GEOIP_DB_PATH: /geoip/dbip-city-lite.mmdb
+      extraVolumes:
+        - name: geoip
+          persistentVolumeClaim:
+            claimName: geoip
+            readOnly: true
+      extraVolumeMounts:
+        - name: geoip
+          mountPath: /geoip
+          readOnly: true
+
     edge:
       expose: gateway
       env:
