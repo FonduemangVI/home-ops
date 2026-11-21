@@ -86,7 +86,7 @@ spec:
     postgres:
       image:
         repository: postgres
-        tag: 18.7-alpine
+        tag: 19.0-alpine
       persistence:
         storageClassName: nfs-syno
     valkey:
