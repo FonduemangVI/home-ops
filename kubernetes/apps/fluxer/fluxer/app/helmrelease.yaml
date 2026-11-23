@@ -110,7 +110,7 @@ spec:
     seaweedfs:
       image:
         repository: chrislusf/seaweedfs
-        tag: "4.54"
+        tag: "4.55"
       persistence:
         storageClassName: nfs-syno
 
