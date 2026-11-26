@@ -73,6 +73,12 @@ spec:
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-users
         fluxer-users: "2026.1124.71321"
 
+    # Init container on every Fluxer pod that waits for the backing services.
+    # Set here (chart default) so Renovate can track it.
+    initImage:
+      repository: busybox
+      tag: "1.37"
+
     secrets:
       existingSecret: fluxer-secret
       generate: false
@@ -148,6 +154,9 @@ spec:
           readOnly: true
 
     edge:
+      image:
+        repository: caddy
+        tag: 2.11-alpine
       expose: gateway
       env:
         # Only Envoy pods connect to the edge. The chart default
