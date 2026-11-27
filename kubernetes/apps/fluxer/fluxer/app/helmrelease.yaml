@@ -51,11 +51,11 @@ spec:
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-admin
         fluxer-admin: "2026.1124.71257"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-api
-        fluxer-api: "2026.1125.11634"
+        fluxer-api: "2026.1126.202147"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-app-proxy-self-hosted
         fluxer-app-proxy-self-hosted: "2026.1124.195247"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gateway
-        fluxer-gateway: "2026.1124.71258"
+        fluxer-gateway: "2026.1126.202137"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gifs
         fluxer-gifs: "2026.1124.71229"
         # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-media-proxy
