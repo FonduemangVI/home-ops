@@ -77,7 +77,7 @@ spec:
     # Set here (chart default) so Renovate can track it.
     initImage:
       repository: busybox
-      tag: "1.37"
+      tag: "1.38"
 
     secrets:
       existingSecret: fluxer-secret
