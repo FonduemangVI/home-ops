@@ -46,6 +46,16 @@ spec:
               key: api-token
         selector:
           dnsZones: ["k8s.vaultlabs1226.com"]
+      # Fluxer's public name sits outside the k8s zone (served by Envoy via
+      # Traefik passthrough). Listed by name so the issuer does not cover
+      # every vaultlabs1226.com host, which Traefik certifies itself.
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
+        selector:
+          dnsNames: ["chat.vaultlabs1226.com"]
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -64,3 +74,13 @@ spec:
               key: api-token
         selector:
           dnsZones: ["k8s.vaultlabs1226.com"]
+      # Fluxer's public name sits outside the k8s zone (served by Envoy via
+      # Traefik passthrough). Listed by name so the issuer does not cover
+      # every vaultlabs1226.com host, which Traefik certifies itself.
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
+        selector:
+          dnsNames: ["chat.vaultlabs1226.com"]
