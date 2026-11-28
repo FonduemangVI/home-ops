@@ -12,7 +12,18 @@ spec:
         kind: HelmRepository
         name: skyhook
   interval: 1h
+  upgrade:
+    # mcp.oauth switches the Deployment from RollingUpdate to Recreate, which
+    # server-side apply rejects (leftover rollingUpdate params). Client-side
+    # apply handles the transition.
+    serverSideApply: disabled
   values:
+    # MCP OAuth keeps client registrations and tokens in memory: one replica only.
+    replicaCount: 1
+    mcp:
+      enabled: true
+      oauth:
+        enabled: true
     auth:
       mode: oidc
       existingSecret: radar-secret
