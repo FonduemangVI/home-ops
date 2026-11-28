@@ -1,172 +1,163 @@
 ---
-# Ported from docker-compose/vgrc-apps-01/fluxer (Komodo stack "fluxer").
-# The chart is at parity with that compose stack; only settings that differ
-# from the chart defaults are set here.
+# Single-pod chart (2026.11+): fluxerd runs PostgreSQL, the API, gateway,
+# search, LiveKit and the web front in one StatefulSet pod. Release name
+# "fluxer" gives StatefulSet fluxer, pod fluxer-0, claim data-fluxer-0.
+#
+# The chart refuses to upgrade a 0.x release (it looks for the 0.x "edge"
+# Deployment) and refuses any 0.x value. This instance was wiped rather than
+# imported; see https://docs.fluxer.com/operator/moving/ for the import path.
+#
+# First start: kubectl -n fluxer exec fluxer-0 -- fluxerd setup-token
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: fluxer
 spec:
-  chart:
-    spec:
-      chart: ./deploy/helm/fluxer
-      sourceRef:
-        kind: GitRepository
-        name: fluxer
-      # Upstream never bumps Chart.yaml (still 0.1.0 after many template
-      # changes), so ChartVersion froze the release on the first build. Track
-      # each fetched commit instead; upgrades with no rendered change leave the
-      # pods alone.
-      reconcileStrategy: Revision
+  chartRef:
+    kind: OCIRepository
+    name: fluxer
   interval: 1h
   timeout: 15m
-  # nfs-syno reports the whole Synology volume (~169 TB), not the PVC size, so
-  # SeaweedFS's default 1% free-space floor is ~1.7 TB and it refuses to create
-  # any volume. Use an absolute floor instead. The chart has no extraArgs.
-  postRenderers:
-    - kustomize:
-        patches:
-          - target:
-              kind: StatefulSet
-              name: seaweedfs
-            patch: |
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: -volume.minFreeSpace=10GiB
+  # Never roll back on its own. Older Fluxer cannot run on a database a newer
+  # release has migrated: it stays up but not ready until a restore. Fluxer
+  # backs up to /var/lib/fluxer/backups (the fluxer-backups claim) before
+  # each upgrade and keeps the newest 3. To go back:
+  #   1. revert the tag in ocirepository.yaml (not helm rollback; Flux undoes it)
+  #   2. kubectl -n fluxer logs fluxer-0   # names the archive to restore
+  #   3. kubectl -n fluxer exec fluxer-0 -- fluxerd restore /var/lib/fluxer/backups/<archive>
+  # Anything written after the upgrade is lost.
+  #
+  # PostgreSQL: the image bundles 17 and a Fluxer upgrade never changes the
+  # major. Upstream documents a major move only for systemd (rexctl), so read
+  # the release notes of any chart bump that changes it.
+  install:
+    remediation:
+      retries: 0
+  upgrade:
+    remediation:
+      retries: 0
+      remediateLastFailure: false
   values:
-    # Docker instance stays on chat.vaultlabs1226.com. This one sits under the
-    # cluster wildcard cert until cutover.
-    domain: chat.k8s.vaultlabs1226.com
-    # Becomes FLUXER_VAPID_EMAIL, the contact web push services see. The
-    # default, admin@<domain>, is not a real mailbox.
-    email: fluxer@vaultlabs1226.com
+    # Public, via Cloudflare (orange-cloud) -> Traefik TLS passthrough ->
+    # envoy-external. Cert: network/envoy-gateway/app/certificate.yaml. DNS:
+    # DNSEndpoint "fluxer" (network/cloudflare-dns/endpoint). Changing it
+    # later means a reinstall.
+    domain: chat.vaultlabs1226.com
 
-    # The chart default (v1, pullPolicy Always) only moves when a pod restarts
-    # and leaves no record in Git. Pin each image to its CalVer build tag so
-    # Renovate opens the upgrade PRs. Each image is built and tagged on its own,
-    # so the versions differ per image.
-    image:
-      pullPolicy: IfNotPresent
-      tags:
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-admin
-        fluxer-admin: "2026.1124.71257"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-api
-        fluxer-api: "2026.1126.202147"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-app-proxy-self-hosted
-        fluxer-app-proxy-self-hosted: "2026.1124.195247"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gateway
-        fluxer-gateway: "2026.1126.202137"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-gifs
-        fluxer-gifs: "2026.1124.71229"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-media-proxy
-        fluxer-media-proxy: "2026.1124.71304"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-messages
-        fluxer-messages: "2026.1124.71305"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-push
-        fluxer-push: "2026.1124.71316"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-snowflakes
-        fluxer-snowflakes: "2026.1124.71334"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-static
-        fluxer-static: "2026.1124.71336"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-unfurl
-        fluxer-unfurl: "2026.1124.71340"
-        # renovate: datasource=docker depName=ghcr.io/fluxerapp/fluxer-users
-        fluxer-users: "2026.1124.71321"
+    # Only the Klipy key (externalsecret.yaml). Fluxer generates the rest.
+    existingSecret: fluxer-secret
 
-    # Init container on every Fluxer pod that waits for the backing services.
-    # Set here (chart default) so Renovate can track it.
-    initImage:
-      repository: busybox
-      tag: "1.38"
+    config:
+      # Contact web push services see. The default, admin@<domain>, is not a
+      # real mailbox.
+      FLUXER_VAPID_EMAIL: fluxer@vaultlabs1226.com
+      # IP-to-location from the DB-IP City Lite file kept current by
+      # geoip-update (geoip.yaml).
+      FLUXER_GEOIP_DB_PATH: /geoip/dbip-city-lite.mmdb
+      # Shown on the admin panel's Updates page. Upgrades go through Git.
+      FLUXER_UPGRADE_COMMAND: "Merge the Renovate PR that bumps kubernetes/apps/fluxer/fluxer/app/ocirepository.yaml to {version}"
 
-    secrets:
-      existingSecret: fluxer-secret
-      generate: false
+    # Database, uploads (filesystem store), search index and generated keys all
+    # live on this one claim. Install-time only: a StatefulSet cannot change
+    # its claim template. To grow it (nfs-syno allows expansion):
+    #   1. flux suspend helmrelease fluxer -n fluxer
+    #   2. kubectl -n fluxer patch pvc data-fluxer-0 -p '{"spec":{"resources":{"requests":{"storage":"<new>"}}}}'
+    #   3. kubectl -n fluxer delete statefulset fluxer --cascade=orphan
+    #   4. set size below to <new>, commit, push
+    #   5. flux resume helmrelease fluxer -n fluxer
+    persistence:
+      size: 50Gi
+      storageClass: nfs-syno
 
-    # No env overrides. Discovery is on by default (discovery.enabled), and the
-    # instance uses username sign-in, so it never sends email and needs no
-    # FLUXER_EMAIL_* settings.
-
-    # Backing services. repository repeats the chart default so Renovate's
-    # helm-values manager can see which image each tag belongs to.
-    postgres:
-      image:
-        repository: postgres
-        tag: 18.7-alpine
+    # fluxerd's own backups (database, uploads and search index, plus the
+    # generated keys), kept on a second claim the chart retains on uninstall.
+    # Fluxer shows a maintenance page while it copies, so run it overnight:
+    # hour is UTC, 16 UTC is 03:00 AEDT / 02:00 AEST.
+    # Restore (in Git, not helm --set, which the next reconcile undoes):
+    #   1. set maintenance: true below, commit, push; pod restarts without Fluxer
+    #   2. kubectl -n fluxer exec -i fluxer-0 -- fluxerd restore - < archive
+    #      (or fluxerd restore /var/lib/fluxer/backups/<archive>)
+    #   3. set maintenance: false, commit, push
+    # A backup only restores on its own release or newer; restore names the
+    # version it needs, so bump ocirepository.yaml first if asked.
+    maintenance: false
+    backup:
+      schedule: daily
+      keep: 7
+      hour: 16
       persistence:
-        storageClassName: nfs-syno
-    valkey:
-      image:
-        repository: valkey/valkey
-        tag: 9.2-alpine
-      persistence:
-        storageClassName: nfs-syno
-    nats:
-      image:
-        repository: nats
-        tag: 2.15-alpine
-      persistence:
-        storageClassName: nfs-syno
-    meilisearch:
-      image:
-        repository: getmeili/meilisearch
-        tag: v1.58
-      persistence:
-        storageClassName: nfs-syno
-    seaweedfs:
-      image:
-        repository: chrislusf/seaweedfs
-        tag: "4.55"
-      persistence:
-        storageClassName: nfs-syno
+        enabled: true
+        size: 50Gi
+        storageClass: nfs-syno
 
-    # Compose published 7881/tcp + 7882/udp on the host and let LiveKit find
-    # the WAN IP over STUN. Here the ports sit on a Cilium LB IP instead.
-    # nodeIP only satisfies the chart's loadBalancer check: with
-    # use_external_ip true LiveKit replaces it with the STUN-discovered address.
-    livekit:
-      image:
-        repository: livekit/livekit-server
-        tag: v1.13.11
-      expose: loadBalancer
-      nodeIP: &livekitIP 192.168.30.70
-      serviceAnnotations:
-        lbipam.cilium.io/ips: *livekitIP
-      tcpPort: 7881
-      udpPort: 7882
-      extraConfig:
-        rtc:
-          use_external_ip: true
-
-    # IP-to-location from the DB-IP City Lite file kept current by
-    # geoip-update (geoip.yaml).
-    api:
-      env:
-        FLUXER_GEOIP_DB_PATH: /geoip/dbip-city-lite.mmdb
-      extraVolumes:
-        - name: geoip
-          persistentVolumeClaim:
-            claimName: geoip
-            readOnly: true
-      extraVolumeMounts:
-        - name: geoip
-          mountPath: /geoip
-          readOnly: true
-
+    # Envoy terminates TLS; Fluxer serves plain HTTP on 8080.
     edge:
-      image:
-        repository: caddy
-        tag: 2.11-alpine
-      expose: gateway
-      env:
-        # Only Envoy pods connect to the edge. The chart default
-        # (private_ranges) would also trust X-Forwarded-For from LAN clients.
-        FLUXER_EDGE_TRUSTED_PROXIES: "10.42.0.0/16"
-      gateway:
-        parentRefs:
-          - name: envoy-external
-            namespace: network
-            sectionName: https
-        # Envoy cuts requests at 15s otherwise (gateway websocket, uploads).
-        timeouts:
-          request: 0s
+      mode: proxy
+      # Who may set X-Forwarded-For. Envoy pods connect directly; Envoy
+      # appends the address from Traefik's PROXY header, which for internet
+      # traffic is a Cloudflare edge, and Cloudflare puts the real client
+      # before it. Trusting Cloudflare's ranges lets Fluxer step past them to
+      # the client. Same list as Traefik's forwardedHeaders.trustedIPs
+      # (docker-compose: vgrc-network-01/traefik/compose.yaml); keep the two
+      # in step. The default (private_ranges) would trust LAN clients too.
+      trustedProxies: >-
+        10.42.0.0/16
+        173.245.48.0/20
+        103.21.244.0/22
+        103.22.200.0/22
+        103.31.4.0/22
+        141.101.64.0/18
+        108.162.192.0/18
+        190.93.240.0/20
+        188.114.96.0/20
+        197.234.240.0/22
+        198.41.128.0/17
+        162.158.0.0/15
+        104.16.0.0/13
+        104.24.0.0/14
+        172.64.0.0/13
+        131.0.72.0/22
+        2400:cb00::/32
+        2606:4700::/32
+        2803:f800::/32
+        2405:b500::/32
+        2405:8100::/32
+        2a06:98c0::/29
+        2c0f:f248::/32
+    ingress:
+      enabled: false
+    httpRoute:
+      enabled: true
+      # external-dns would publish chat -> external.k8s (grey-cloud, and the
+      # UDM only admits Cloudflare). The DNSEndpoint "fluxer" owns the record.
+      annotations:
+        external-dns.kubernetes.io/controller: none
+      parentRefs:
+        - name: envoy-external
+          namespace: network
+          sectionName: https
+      # Chart default, repeated because Envoy cuts requests at 15s otherwise
+      # (gateway websocket, uploads).
+      timeouts:
+        request: 0s
+
+    # Media on a Cilium LB IP (7881/tcp, 7882/udp). loadBalancerIP and publicIP
+    # stay empty on purpose: either would become FLUXER_LIVEKIT_NODE_IP and
+    # advertise the private address. Left empty, LiveKit finds the WAN IP over
+    # STUN (FLUXER_LIVEKIT_USE_EXTERNAL_IP defaults to true).
+    voice:
+      mode: bundled
+      expose: loadBalancer
+      service:
+        annotations:
+          lbipam.cilium.io/ips: 192.168.30.70
+
+    extraVolumes:
+      - name: geoip
+        persistentVolumeClaim:
+          claimName: geoip
+          readOnly: true
+    extraVolumeMounts:
+      - name: geoip
+        mountPath: /geoip
+        readOnly: true

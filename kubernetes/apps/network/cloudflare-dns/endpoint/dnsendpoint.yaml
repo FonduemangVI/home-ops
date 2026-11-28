@@ -9,3 +9,24 @@ spec:
       recordType: A
       targets:
         - 103.51.115.22
+---
+# Fluxer's public name, proxied (orange-cloud) like the Docker apps: same
+# CNAME target DNSWeaver uses, so Cloudflare reaches Traefik on WAN 443 (the
+# UDM forward admits only Cloudflare), which passes it through to
+# envoy-external. Its HTTPRoute opts out of external-dns
+# (controller: none), because route records always target the Gateway
+# (external.k8s, grey-cloud) and external-dns ignores a per-route target.
+# LAN: Technitium needs a matching static CNAME chat -> vaultlabs1226.com.
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: fluxer
+spec:
+  endpoints:
+    - dnsName: chat.vaultlabs1226.com
+      recordType: CNAME
+      targets:
+        - vaultlabs1226.com
+      providerSpecific:
+        - name: cloudflare/proxied
+          value: "true"

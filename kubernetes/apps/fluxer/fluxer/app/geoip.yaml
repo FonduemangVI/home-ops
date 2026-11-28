@@ -4,10 +4,10 @@
 # the free DB-IP City Lite build (CC BY 4.0, attribution to DB-IP:
 # https://db-ip.com). DB-IP publishes a new file each month.
 #
-# The API opens the file once and keeps it until the pod restarts, so a new
-# month takes effect on the next API rollout (Renovate image bumps do this).
-# A missing file is not fatal: lookups return no location and the API retries
-# opening it on the next lookup.
+# Fluxer opens the file once and keeps it until the pod restarts, so a new
+# month takes effect on the next fluxer-0 restart (Renovate chart bumps do
+# this). A missing file is not fatal: lookups return no location. The file is
+# written 0644, so the Fluxer pod (UID 65532) can read it.
 #
 # First load: kubectl -n fluxer create job --from=cronjob/geoip-update geoip-seed
 apiVersion: v1
