@@ -45,20 +45,10 @@
       minimumGroupSize: 2,
     },
     {
-      description: "Fluxer Group",
+      description: "Fluxer chart (the image follows the chart version)",
       groupName: "fluxer",
       matchDatasources: ["docker"],
       matchPackageNames: ["/^ghcr\\.io/fluxerapp//"],
-      group: {
-        commitMessageTopic: "{{{groupName}}} group",
-      },
-    },
-    {
-      description: "Fluxer Postgres Group (server in helmrelease.yaml, pg_dump in backup.yaml)",
-      groupName: "fluxer-postgres",
-      matchDatasources: ["docker"],
-      matchFileNames: ["kubernetes/apps/fluxer/**"],
-      matchPackageNames: ["/^(docker\\.io/library/)?postgres$/"],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },

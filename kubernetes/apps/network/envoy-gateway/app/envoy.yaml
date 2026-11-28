@@ -90,10 +90,14 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+      # Envoy picks the cert by SNI. chat.vaultlabs1226.com is Fluxer's
+      # public name (certificate.yaml).
       tls:
         certificateRefs:
           - kind: Secret
             name: k8s-vaultlabs1226.com-production-tls
+          - kind: Secret
+            name: chat.vaultlabs1226.com-production-tls
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy

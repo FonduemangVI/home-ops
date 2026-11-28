@@ -13,3 +13,21 @@ spec:
   privateKey:
     algorithm: ECDSA
   secretName: "k8s-vaultlabs1226.com-production-tls"
+---
+# Fluxer's public hostname. Traefik on vgrc-network-01 passes it through
+# untouched (TLS passthrough), so Envoy must hold a cert for it; Cloudflare
+# (orange-cloud, Full strict) validates this one. Traefik's own
+# *.vaultlabs1226.com wildcard is never presented for this name.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "chat.vaultlabs1226.com-production"
+spec:
+  dnsNames:
+    - "chat.vaultlabs1226.com"
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: ECDSA
+  secretName: "chat.vaultlabs1226.com-production-tls"

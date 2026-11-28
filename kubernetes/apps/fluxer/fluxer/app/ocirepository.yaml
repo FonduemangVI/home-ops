@@ -1,0 +1,15 @@
+---
+# Since 2026.11 upstream publishes the chart to GHCR with CalVer releases. The
+# image tag follows the chart's appVersion, so this one tag moves both.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: fluxer
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 2026.1128.359
+  url: oci://ghcr.io/fluxerapp/charts/fluxer
