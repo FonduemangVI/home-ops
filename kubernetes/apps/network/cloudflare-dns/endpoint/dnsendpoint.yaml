@@ -16,7 +16,10 @@ spec:
 # envoy-external. Its HTTPRoute opts out of external-dns
 # (controller: none), because route records always target the Gateway
 # (external.k8s, grey-cloud) and external-dns ignores a per-route target.
-# LAN: Technitium needs a matching static CNAME chat -> vaultlabs1226.com.
+# LAN: Technitium has a static CNAME chat -> external.k8s.vaultlabs1226.com,
+# straight to Envoy, not via Traefik. Envoy advertises HTTP/3 (alt-svc), and
+# Traefik's HTTP/3 listener cannot pass QUIC through, so browsers that went
+# via Traefik got 404s once they switched to h3.
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:
